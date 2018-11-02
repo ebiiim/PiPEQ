@@ -52,8 +52,8 @@ if __name__ == '__main__':
     out_sr = 48000
     in_bit = 16
     out_bit = 16
-    in_bs = 32
-    out_bs = in_bs * 4
+    in_bs = 16
+    out_bs = 16
     ses = ['gain', '-h', '-3']
     command = build_command(in_dev, [in_sr, out_sr], [in_bit, out_bit], in_bs, ses)
     play_stdin(command, out_sr, out_bit, out_bs, out_dev)
