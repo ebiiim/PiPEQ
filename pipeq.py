@@ -1,5 +1,6 @@
 import pyaudio
 from player import play_stdin
+from filter_loader import build_eq, parse_roomeq
 
 
 def show_devices():
@@ -46,14 +47,17 @@ def build_command(input_device, rates, bits, input_buffer, sox_effects):
 
 
 if __name__ == '__main__':
+    import sys
     show_devices()
     in_dev, out_dev = _select_device()
     in_sr = 48000
     out_sr = 48000
     in_bit = 16
     out_bit = 16
-    in_bs = 16
-    out_bs = 16
-    ses = ['gain', '-h', '-3']
+    in_bs = 128
+    out_bs = 128
+    ses = ['gain', '-3']
+    if len(sys.argv) == 2:
+        ses += build_eq(parse_roomeq(sys.argv[1]))
     command = build_command(in_dev, [in_sr, out_sr], [in_bit, out_bit], in_bs, ses)
     play_stdin(command, out_sr, out_bit, out_bs, out_dev)
