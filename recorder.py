@@ -31,7 +31,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) < 5:
         print('Usage: python recorder.py DEVICE_INDEX SAMPLE_RATE SAMPLE_BIT BUFFER_SIZE')
-        exit()
+        sys.exit()
     dev = None if sys.argv[1] == '-1' else int(sys.argv[1])
     r = int(sys.argv[2])
     b = int(sys.argv[3])
