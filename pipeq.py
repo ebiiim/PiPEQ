@@ -38,7 +38,7 @@ def _select_device():
 
 def build_command(input_device, rates, bits, input_buffer, sox_effects):
     err2null = '2>/dev/null'
-    rec = ['python recorder.py', str(input_device), str(rates[0]), str(bits[0]), str(input_buffer), err2null]
+    rec = ['./recorder', str(input_device), str(rates[0]), str(bits[0]), str(input_buffer), err2null]
     sox = ['sox', '-t raw -b', str(bits[0]), '-e signed -c 2 -r', str(rates[0]), '-',
            '-t raw -b', str(bits[1]), '-e signed -c 2 -r', str(rates[1]), '-'] + sox_effects + [err2null]
     cmd = rec + ['|'] + sox

@@ -30,7 +30,7 @@ def write_input_to_stdout(input_device_index, sample_rate, sample_bit, buffer_si
 if __name__ == '__main__':
     import sys
     if len(sys.argv) < 5:
-        print('Usage: python recorder.py DEVICE_INDEX SAMPLE_RATE SAMPLE_BIT BUFFER_SIZE')
+        print('Usage: recorder DEVICE_INDEX SAMPLE_RATE SAMPLE_BIT BUFFER_SIZE')
         sys.exit()
     dev = None if sys.argv[1] == '-1' else int(sys.argv[1])
     r = int(sys.argv[2])
