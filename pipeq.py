@@ -54,8 +54,8 @@ if __name__ == '__main__':
     out_sr = 48000
     in_bit = 16
     out_bit = 16
-    in_bs = 128
-    out_bs = 128
+    in_bs = 512
+    out_bs = 512
     ses = ['gain', '-3']
     if len(sys.argv) == 2:
         ses += build_eq(parse_roomeq(sys.argv[1]))

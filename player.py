@@ -5,7 +5,7 @@ import pyaudio
 
 def _fetch_stdin(command, sample_rate, buffer_size):
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    time.sleep(3*(buffer_size/sample_rate))
+    time.sleep(1*(buffer_size/sample_rate))
     while True:
         buffer = p.stdout.read(buffer_size)
         if buffer:
