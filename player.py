@@ -1,11 +1,9 @@
-import time
 import subprocess
 import pyaudio
 
 
-def _fetch_stdin(command, sample_rate, buffer_size):
+def _fetch_stdin(command, buffer_size):
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    time.sleep(1*(buffer_size/sample_rate))
     while True:
         buffer = p.stdout.read(buffer_size)
         if buffer:
@@ -32,8 +30,12 @@ def play_stdin(command, sample_rate, sample_bit, buffer_size, output_device):
                      output_device_index=dev,
                      )
     stream.start_stream()
-    for buffer in _fetch_stdin(command, sample_rate, buffer_size):
-        stream.write(buffer)
+    c = 0
+    for buffer in _fetch_stdin(command, sample_rate):
+        if c > sample_rate/buffer_size:  # avoid noise in Raspi
+            stream.write(buffer)
+        else:
+            c += 1
     stream.stop_stream()
     stream.close()
     pa.terminate()
