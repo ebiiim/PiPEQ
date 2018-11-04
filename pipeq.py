@@ -10,7 +10,7 @@ def show_devices():
         in_ch = device['maxInputChannels']
         None if in_ch == 0 else print(' '*4 + 'input_channels:', in_ch)
         out_ch = device['maxOutputChannels']
-        None if out_ch == 0 else print(' '*4 + 'input_channels:', out_ch)
+        None if out_ch == 0 else print(' '*4 + 'output_channels:', out_ch)
         sr = device['defaultSampleRate']
         print(' '*4 + 'default_sample_rate:', sr)
 
