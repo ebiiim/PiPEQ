@@ -4,3 +4,4 @@ macholib==1.11
 pefile==2018.8.8
 PyAudio==0.2.11
 PyInstaller==3.4
+toml==0.10.0

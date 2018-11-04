@@ -1,30 +1,6 @@
-import pyaudio
 from player import play_stdin
-from filter_loader import build_eq, parse_roomeq
-
-
-def show_devices():
-    def _show_device_info(device):
-        print(' '*2 + device['name'])
-        print(' '*4 + 'device_index:', device['index'])
-        in_ch = device['maxInputChannels']
-        None if in_ch == 0 else print(' '*4 + 'input_channels:', in_ch)
-        out_ch = device['maxOutputChannels']
-        None if out_ch == 0 else print(' '*4 + 'output_channels:', out_ch)
-        sr = device['defaultSampleRate']
-        print(' '*4 + 'default_sample_rate:', sr)
-
-    def _show_devices_by_host_api_type(pa_type):
-        info = pa.get_host_api_info_by_type(pa_type)
-        device_count = info.get('deviceCount')
-        if device_count > 0:
-            print(info['name'], 'devices')
-            for i in range(0, device_count):
-                _show_device_info(pa.get_device_info_by_host_api_device_index(info.get('index'), i))
-
-    pa = pyaudio.PyAudio()
-    for i in range(0, pa.get_host_api_count()):
-        _show_devices_by_host_api_type(pa.get_host_api_info_by_index(i)['type'])
+from filter_loader import build_eq_by_type
+from get_devices import get_devices
 
 
 def _select_device():
@@ -76,20 +52,39 @@ def build_command(input_device, rates, bits, buffers, sox_effects):
 
 if __name__ == '__main__':
     import sys
-    show_devices()
-    dev_in, dev_out = _select_device()
-    sr_in = 48000
-    sr_out = 48000
-    bit_in = 16
-    bit_out = 16
+    import toml
+
+    # default
     buf_in = 512
-    buf_sox = 1024
     buf_out = 512
     eq_l = ['gain', '-3']
     eq_r = ['gain', '-3']
-    if len(sys.argv) == 3:
-        eq_l += build_eq(parse_roomeq(sys.argv[1]))
-        eq_r += build_eq(parse_roomeq(sys.argv[2]))
-    cmd = build_command(dev_in, [sr_in, sr_out], [bit_in, bit_out], [buf_in, buf_sox], [eq_l, eq_r])
-    print(cmd)
-    play_stdin(cmd, sr_out, bit_out, buf_out, dev_out)
+    conf = {'global': {'buffer_bytes': 1024, 'debug': False},
+            'input': {'device_id': -1, 'rate': 48000, 'bit': 16},
+            'output': {'device_id': -1, 'rate': 48000, 'bit': 16},
+            'eq': {'left': {'type': '', 'path': ''},
+                   'right': {'type': '', 'path': ''}}
+            }
+
+    if len(sys.argv) == 1:  # no config
+        get_devices()
+        conf['input']['device_id'], conf['output']['device_id'] = _select_device()
+
+    if len(sys.argv) == 2:  # load config
+        conf = toml.load(sys.argv[1])
+        buf_in = int(conf['global']['buffer_bytes']/(conf['input']['bit']/8))  # frames_per_buffer
+        buf_out = int(conf['global']['buffer_bytes']/(conf['output']['bit']/8))  # frames_per_buffer
+        eq_l += build_eq_by_type(conf['eq']['left']['type'], conf['eq']['left']['path'])
+        eq_r += build_eq_by_type(conf['eq']['right']['type'], conf['eq']['right']['path'])
+
+    cmd = build_command(conf['input']['device_id'],
+                        [conf['input']['rate'], conf['output']['rate']],
+                        [conf['input']['bit'], conf['output']['bit']],
+                        [buf_in, conf['global']['buffer_bytes']], [eq_l, eq_r])
+
+    if conf['global']['debug']:
+        print(conf)
+        print('buf_in, bun_out: ', buf_in, ', ', buf_out)
+        print(cmd)
+
+    play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
