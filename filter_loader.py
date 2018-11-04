@@ -1,7 +1,7 @@
 import re
 
 
-def parse_roomeq(path):
+def _parse_roomeq(path):
     eq = []
     try:
         with open(path, 'r') as f:
@@ -13,7 +13,7 @@ def parse_roomeq(path):
     return eq
 
 
-def build_eq(parser):
+def _build_eq(parser):
     sox_eq = []
     for eq in parser:
         sox_eq.append('equalizer')
@@ -21,3 +21,21 @@ def build_eq(parser):
         sox_eq.append(eq[2] + 'q')
         sox_eq.append(eq[1])
     return sox_eq
+
+
+def build_eq_by_type(eq_type, path):
+    if eq_type == 'roomeq':
+        return _build_eq(_parse_roomeq(path))
+    return []
+
+
+def format_eq_plot(eq_list):
+    arg = ''
+    for i in range(0, len(eq_list), 4):
+        arg += ' "'+' '.join(eq_list[i:i+4]) + '"'
+    return arg
+
+
+if __name__ == '__main__':
+    import sys
+    print(format_eq_plot(build_eq_by_type(sys.argv[1], sys.argv[2])))

@@ -1,0 +1,19 @@
+[global]
+buffer_bytes = 1024
+debug = true
+
+[input]
+device_id = -1
+rate = 48000
+bit = 16
+
+[output]
+device_id = -1
+rate = 48000
+bit = 16
+
+[eq]
+left.type = "roomeq"
+left.path = "left.txt"
+right.type = "roomeq"
+right.path = "right.txt"
