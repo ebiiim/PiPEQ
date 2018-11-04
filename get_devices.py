@@ -23,3 +23,8 @@ def get_devices():
     pa = pyaudio.PyAudio()
     for i in range(0, pa.get_host_api_count()):
         _show_devices_by_host_api_type(pa.get_host_api_info_by_index(i)['type'])
+
+
+if __name__ == '__main__':
+    import sys
+    get_devices()
