@@ -31,8 +31,9 @@ def play_stdin(command, sample_rate, sample_bit, buffer_size, output_device):
                      )
     stream.start_stream()
     c = 0
+    c_max = int(0.1 * (sample_rate/buffer_size))
     for buffer in _fetch_stdin(command, sample_rate):
-        if c > sample_rate/buffer_size:  # avoid noise in Raspi
+        if c > c_max:  # wait 0.1s to avoid noise in Raspi
             stream.write(buffer)
         else:
             c += 1
