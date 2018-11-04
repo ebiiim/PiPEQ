@@ -54,11 +54,11 @@ if __name__ == '__main__':
     import sys
     import toml
 
+    # default
     buf_in = 512
     buf_out = 512
     eq_l = ['gain', '-3']
     eq_r = ['gain', '-3']
-
     conf = {'global': {'buffer_bytes': 1024, 'debug': False},
             'input': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'output': {'device_id': -1, 'rate': 48000, 'bit': 16},
@@ -70,8 +70,10 @@ if __name__ == '__main__':
         get_devices()
         conf['input']['device_id'], conf['output']['device_id'] = _select_device()
 
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 2:  # load config
         conf = toml.load(sys.argv[1])
+        buf_in = int(conf['global']['buffer_bytes']/(conf['input']['bit']/8))  # frames_per_buffer
+        buf_out = int(conf['global']['buffer_bytes']/(conf['output']['bit']/8))  # frames_per_buffer
         eq_l += build_eq_by_type(conf['eq']['left']['type'], conf['eq']['left']['path'])
         eq_r += build_eq_by_type(conf['eq']['right']['type'], conf['eq']['right']['path'])
 
@@ -82,6 +84,7 @@ if __name__ == '__main__':
 
     if conf['global']['debug']:
         print(conf)
+        print('buf_in, bun_out: ', buf_in, ', ', buf_out)
         print(cmd)
 
     play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
