@@ -37,27 +37,61 @@ def _select_device():
     return input_device, output_device
 
 
-def build_command(input_device, rates, bits, input_buffer, sox_effects):
-    err2null = '2>/dev/null'
-    rec = ['pipeq-recorder', str(input_device), str(rates[0]), str(bits[0]), str(input_buffer), err2null]
-    sox = ['sox', '-t raw -b', str(bits[0]), '-e signed -c 2 -r', str(rates[0]), '-',
-           '-t raw -b', str(bits[1]), '-e signed -c 2 -r', str(rates[1]), '-'] + sox_effects + [err2null]
-    cmd = rec + ['|'] + sox
-    return ' '.join(cmd)
+def build_command(input_device, rates, bits, buffers, sox_effects):
+    """
+    :param input_device: device index e.g. 2
+    :param rates: [input, internal, output] e.g. [48000, 96000, 48000]
+    :param bits: [input, internal, output] e.g. [16, 32, 16]
+    :param buffers: [input, internal] e.g. [512, 512]
+    :param sox_effects: [left, right] e.g. [['equalizer', '80', '5q', '-6'], ['equalizer', '10000', '2q', '3']]
+    :return str: command
+    """
+
+    rec = ['pipeq-recorder', str(input_device), str(rates[0]), str(bits[0]), str(buffers[0])]
+    # rec = ['cat', 'test.pcm']
+
+    tmp = "L1=$(mktemp -u);R1=$(mktemp -u);L2=$(mktemp -u);R2=$(mktemp -u);" \
+          "mkfifo $L1 $L2 $R1 $R2;" \
+          "trap 'rm -f $L1 $L2 $R1 $R2' EXIT;"
+    s2l = "sh -c " \
+          "'sox --buffer "+str(buffers[1])+"" \
+          " -t raw -b "+str(bits[0])+" -e signed -c 2 -r "+str(rates[0])+" $0" \
+          " -t raw -b "+str(bits[1])+" -e signed -c 1 -r "+str(rates[1])+" $1" \
+          " remix 1 "+' '.join(sox_effects[0])+"'" \
+          " $L1 $L2"
+    s2r = "sh -c " \
+          "'sox --buffer "+str(buffers[1])+"" \
+          " -t raw -b "+str(bits[0])+" -e signed -c 2 -r "+str(rates[0])+" $0" \
+          " -t raw -b "+str(bits[1])+" -e signed -c 1 -r "+str(rates[1])+" $1" \
+          " remix 2 "+' '.join(sox_effects[1])+"'" \
+          " $R1 $R2"
+    rec = "sh -c '"+' '.join(rec)+" | tee $0 > $1' $L1 $R1"
+    mix = "sox --buffer "+str(buffers[1])+" -M" \
+          " -t raw -b "+str(bits[1])+" -e signed -c 1 -r "+str(rates[1])+" $L2" \
+          " -t raw -b "+str(bits[1])+" -e signed -c 1 -r "+str(rates[1])+" $R2" \
+          " -t raw -b "+str(bits[2])+" -e signed -c 2 -r "+str(rates[2])+" -"
+
+    return tmp + s2l + ' & ' + s2r + ' & ' + rec + ' & ' + mix
 
 
 if __name__ == '__main__':
     import sys
     show_devices()
-    in_dev, out_dev = _select_device()
-    in_sr = 48000
-    out_sr = 48000
-    in_bit = 16
-    out_bit = 16
-    in_bs = 512
-    out_bs = 512
-    ses = ['gain', '-3']
-    if len(sys.argv) == 2:
-        ses += build_eq(parse_roomeq(sys.argv[1]))
-    command = build_command(in_dev, [in_sr, out_sr], [in_bit, out_bit], in_bs, ses)
-    play_stdin(command, out_sr, out_bit, out_bs, out_dev)
+    dev_in, dev_out = _select_device()
+    sr_in = 48000
+    sr_proc = 192000
+    sr_out = 48000
+    bit_in = 16
+    bit_proc = 32
+    bit_out = 16
+    buf_in = 512
+    buf_proc = 512
+    buf_out = 512
+    eq_l = ['gain', '-3']
+    eq_r = ['gain', '-3']
+    if len(sys.argv) == 3:
+        eq_l += build_eq(parse_roomeq(sys.argv[1]))
+        eq_r += build_eq(parse_roomeq(sys.argv[2]))
+    cmd = build_command(dev_in, [sr_in, sr_proc, sr_out], [bit_in, bit_proc, bit_out], [buf_in, buf_proc], [eq_l, eq_r])
+    # print(cmd)
+    play_stdin(cmd, sr_out, bit_out, buf_out, dev_out)
