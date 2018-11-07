@@ -59,9 +59,11 @@ def show_eq(eq_list, is_debug):
     eq_l = format_eq_plot(eq_list[0]) if eq_list[0] != [] else eq_dummy
     eq_r = format_eq_plot(eq_list[0]) if eq_list[1] != [] else eq_dummy
     # BSD compatibility (BSD mktemp do not have `--suffix`)
-    cmd = "PLOT_L=$(mktemp $TMPDIR/$(uuidgen).png);PLOT_R=$(mktemp $TMPDIR/$(uuidgen).png);" +\
-          "pipeq-plot-eq 48000 " + eq_l + " | gnuplot > $PLOT_L;" + \
-          "pipeq-plot-eq 48000 " + eq_r + " | gnuplot > $PLOT_R;" + \
+    cmd = "RANDOM=$$; TMP_L=$RANDOM TMP_R=$RANDOM; mkdir -p /tmp/$TMP_L /tmp/$TMP_R; " \
+          "PLOT_L=$(mktemp /tmp/$TMP_L/$(uuidgen).png);PLOT_R=$(mktemp /tmp/$TMP_R/$(uuidgen).png);" \
+          "trap 'rm -f $PLOT_L $PLOT_R' EXIT;" \
+          "pipeq-plot-eq 48000 " + eq_l + " | gnuplot > $PLOT_L;" \
+          "pipeq-plot-eq 48000 " + eq_r + " | gnuplot > $PLOT_R;" \
           "pipeq-show-eq $PLOT_L $PLOT_R"
     if is_debug:
         print(cmd)
