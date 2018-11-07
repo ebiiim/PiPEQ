@@ -26,5 +26,4 @@ def get_devices():
 
 
 if __name__ == '__main__':
-    import sys
     get_devices()
