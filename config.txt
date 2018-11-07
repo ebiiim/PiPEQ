@@ -1,6 +1,7 @@
 [global]
-buffer_bytes = 1024
+buffer_bytes = 4096
 debug = true
+wait_for_plot = 5
 
 [input]
 device_id = -1
