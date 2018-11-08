@@ -24,7 +24,7 @@ my $desc = join(" ", @ARGV);
 print <<END;
 # gnuplot file
 # set term pdfcairo enhanced size 8in, 3in
-set term pngcairo enhanced size 480, 160
+set term pngcairo enhanced size 480, 160 font "Arial, 8"
 # set title 'SoX effects: $desc (rate=$rate)'
 set xlabel 'Frequency (Hz)'
 # set ylabel 'Amplitude Response (dB)'
