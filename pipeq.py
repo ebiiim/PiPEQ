@@ -1,3 +1,5 @@
+import os
+import signal
 import sys
 import subprocess
 import time
@@ -61,13 +63,14 @@ def show_eq(eq_list, is_debug):
     # BSD compatibility (BSD mktemp do not have `--suffix`)
     cmd = "UUID_L=$(uuidgen);UUID_R=$(uuidgen);" \
           "PLOT_L=/tmp/$UUID_L.png;PLOT_R=/tmp/$UUID_R.png;touch $PLOT_L $PLOT_R;" \
-          "trap 'rm -f $PLOT_L $PLOT_R' EXIT;" \
+          "trap 'rm -f $PLOT_L $PLOT_R;kill $PPID' EXIT;" \
           "pipeq-plot-eq 48000 " + eq_l + " | gnuplot > $PLOT_L;" \
           "pipeq-plot-eq 48000 " + eq_r + " | gnuplot > $PLOT_R;" \
           "pipeq-show-eq $PLOT_L $PLOT_R"
     if is_debug:
         print(cmd)
-    subprocess.Popen(cmd, shell=True)
+    p = subprocess.Popen(cmd, shell=True)
+    return p.pid
 
 
 def run():
@@ -105,13 +108,14 @@ def run():
         print('buf_in, bun_out: ', buf_in, ', ', buf_out)
         print(cmd)
 
-    show_eq([eq_l, eq_r], conf['global']['debug'])
+    pid = show_eq([eq_l, eq_r], conf['global']['debug'])
     time.sleep(conf['global']['wait_for_plot'])
 
     start = time.time()
     play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
     stop = time.time() - start
     print("{:.2f}s".format(stop))
+    os.kill(pid, signal.SIGTERM)
 
 
 if __name__ == '__main__':
