@@ -1,5 +1,11 @@
+import os
+import signal
+import sys
+import subprocess
+import time
+import toml
 from player import play_stdin
-from filter_loader import build_eq_by_type
+from filter_loader import build_eq_by_type, format_eq_plot
 from get_devices import get_devices
 
 
@@ -50,16 +56,31 @@ def build_command(input_device, rates, bits, buffers, sox_effects):
     return tmp + s2l + ' & ' + s2r + ' & ' + rec + ' & ' + mix
 
 
-if __name__ == '__main__':
-    import sys
-    import toml
+def show_eq(eq_list, is_debug):
+    eq_dummy = '"equalizer 24000 1q 0.1"'
+    eq_l = format_eq_plot(eq_list[0]) if eq_list[0] != [] else eq_dummy
+    eq_r = format_eq_plot(eq_list[0]) if eq_list[1] != [] else eq_dummy
+    # BSD compatibility (BSD mktemp do not have `--suffix`)
+    cmd = "UUID_L=$(uuidgen);UUID_R=$(uuidgen);" \
+          "PLOT_L=/tmp/$UUID_L.png;PLOT_R=/tmp/$UUID_R.png;touch $PLOT_L $PLOT_R;" \
+          "trap 'rm -f $PLOT_L $PLOT_R;kill $PPID' EXIT;" \
+          "pipeq-plot-eq 48000 " + eq_l + " | gnuplot > $PLOT_L;" \
+          "pipeq-plot-eq 48000 " + eq_r + " | gnuplot > $PLOT_R;" \
+          "pipeq-show-eq $PLOT_L $PLOT_R"
+    if is_debug:
+        print(cmd)
+    p = subprocess.Popen(cmd, shell=True)
+    return p.pid
 
+
+def run():
     # default
+    default_filter = ['gain', '-3']
     buf_in = 512
     buf_out = 512
-    eq_l = ['gain', '-3']
-    eq_r = ['gain', '-3']
-    conf = {'global': {'buffer_bytes': 1024, 'debug': False},
+    eq_l = []
+    eq_r = []
+    conf = {'global': {'buffer_bytes': 1024, 'debug': False, 'wait_for_plot': 5},
             'input': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'output': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'eq': {'left': {'type': '', 'path': ''},
@@ -74,17 +95,28 @@ if __name__ == '__main__':
         conf = toml.load(sys.argv[1])
         buf_in = int(conf['global']['buffer_bytes']/(conf['input']['bit']/8))  # frames_per_buffer
         buf_out = int(conf['global']['buffer_bytes']/(conf['output']['bit']/8))  # frames_per_buffer
-        eq_l += build_eq_by_type(conf['eq']['left']['type'], conf['eq']['left']['path'])
-        eq_r += build_eq_by_type(conf['eq']['right']['type'], conf['eq']['right']['path'])
+        eq_l = build_eq_by_type(conf['eq']['left']['type'], conf['eq']['left']['path'])
+        eq_r = build_eq_by_type(conf['eq']['right']['type'], conf['eq']['right']['path'])
 
     cmd = build_command(conf['input']['device_id'],
                         [conf['input']['rate'], conf['output']['rate']],
                         [conf['input']['bit'], conf['output']['bit']],
-                        [buf_in, conf['global']['buffer_bytes']], [eq_l, eq_r])
+                        [buf_in, conf['global']['buffer_bytes']], [default_filter+eq_l, default_filter+eq_r])
 
     if conf['global']['debug']:
         print(conf)
         print('buf_in, bun_out: ', buf_in, ', ', buf_out)
         print(cmd)
 
+    pid = show_eq([eq_l, eq_r], conf['global']['debug'])
+    time.sleep(conf['global']['wait_for_plot'])
+
+    start = time.time()
     play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
+    stop = time.time() - start
+    print("{:.2f}s".format(stop))
+    os.kill(pid, signal.SIGTERM)
+
+
+if __name__ == '__main__':
+    run()
