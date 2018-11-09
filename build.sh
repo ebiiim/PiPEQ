@@ -9,5 +9,7 @@ mv dist/recorder dist/pipeq-recorder
 mv dist/get_devices dist/pipeq-get-devices
 mv dist/plot_eq dist/pipeq-show-eq
 cp plot_combined.pl dist/pipeq-plot-eq
-cp install.sh dist/install.sh
-cp config.txt dist/config.txt
+cp install.sh dist
+cp config.txt dist
+cp LICENSE dist
+cp README.md dist
