@@ -59,7 +59,7 @@ def build_command(input_device, rates, bits, buffers, sox_effects):
 def show_eq(eq_list, is_debug):
     eq_dummy = '"equalizer 24000 1q 0.1"'
     eq_l = format_eq_plot(eq_list[0]) if eq_list[0] != [] else eq_dummy
-    eq_r = format_eq_plot(eq_list[0]) if eq_list[1] != [] else eq_dummy
+    eq_r = format_eq_plot(eq_list[1]) if eq_list[1] != [] else eq_dummy
     # BSD compatibility (BSD mktemp do not have `--suffix`)
     cmd = "UUID_L=$(uuidgen);UUID_R=$(uuidgen);" \
           "PLOT_L=/tmp/$UUID_L.png;PLOT_R=/tmp/$UUID_R.png;touch $PLOT_L $PLOT_R;" \
