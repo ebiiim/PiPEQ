@@ -7,8 +7,8 @@
 Install
 
 ```bash
-curl -L -O https://github.com/ebiiim/PiPEQ/releases/download/v0.1.0/PiPEQ-v0.1.0-linux-armv7l.tar.gz
-tar -zxvf PiPEQ-v0.1.0-linux-armv7l.tar.gz
+curl -L -O https://github.com/ebiiim/PiPEQ/releases/download/v0.2.0/PiPEQ-v0.2.0-linux-armv7l.tar.gz
+tar -zxvf PiPEQ-v0.2.0-linux-armv7l.tar.gz
 cd PiPEQ
 ./install.sh
 ```
@@ -22,7 +22,7 @@ vi config.txt # edit the config file
 
 Run
 
-```
+```bash
 pipeq config.txt
 ```
 
@@ -30,7 +30,7 @@ Config.txt
 
 ```toml
 [global]
-buffer_bytes = 1024  # 512 to 1024 for Raspi 3 B+
+buffer_bytes = 4096
 debug = true
 
 [input]
@@ -47,7 +47,13 @@ bit = 16
 left.type = "roomeq"  # "roomeq": the Room EQ Wizard's format
 left.path = "left.txt"  # EQ config file for the left channel
 right.type = "roomeq"
-right.path = "right.txt"  # EQ config file for the right channel
+right.path = "right.txt"
+
+[curve]
+plot = true  # display EQ curves
+rotate = 0  # rotate EQ curves by [0, 90, 180, 270] degrees
+wait_for_plot = 5
+
 ```
 
 Uninstall
@@ -64,9 +70,9 @@ Install Dependencies
 ```bash
 sudo apt update
 sudo apt upgrade
-sudo apt install git python3-venv python3-dev
+sudo apt install git python3-pip python3-venv python3-dev python3-tk
+sudo apt install portaudio19-dev uuid-runtime
 sudo apt install sox gnuplot
-sudo apt install portaudio19-dev
 ```
 
 Install PyInstaller on Raspberry Pi
@@ -100,6 +106,12 @@ The following applications are called at runtime:
 - [gnuplot](http://www.gnuplot.info/)
 
 ## Changelog
+
+### 0.2.0 / 2018-11-10
+
+NEW
+
+- EQ curves view
 
 ### 0.1.0 / 2018-11-06
 
