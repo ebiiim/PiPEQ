@@ -18,3 +18,7 @@ left.type = "roomeq"
 left.path = "left.txt"
 right.type = "roomeq"
 right.path = "right.txt"
+
+[curve]
+plot = true
+rotate = 0

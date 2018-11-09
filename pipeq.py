@@ -56,7 +56,7 @@ def build_command(input_device, rates, bits, buffers, sox_effects):
     return tmp + s2l + ' & ' + s2r + ' & ' + rec + ' & ' + mix
 
 
-def show_eq(eq_list, is_debug):
+def show_eq(eq_list, rotate, is_debug):
     eq_dummy = '"equalizer 24000 1q 0.1"'
     eq_l = format_eq_plot(eq_list[0]) if eq_list[0] != [] else eq_dummy
     eq_r = format_eq_plot(eq_list[1]) if eq_list[1] != [] else eq_dummy
@@ -66,7 +66,7 @@ def show_eq(eq_list, is_debug):
           "trap 'rm -f $PLOT_L $PLOT_R;kill $PPID' EXIT;" \
           "pipeq-plot-eq 48000 " + eq_l + " | gnuplot > $PLOT_L;" \
           "pipeq-plot-eq 48000 " + eq_r + " | gnuplot > $PLOT_R;" \
-          "pipeq-show-eq $PLOT_L $PLOT_R"
+          "pipeq-show-eq $PLOT_L $PLOT_R " + str(rotate)
     if is_debug:
         print(cmd)
     p = subprocess.Popen(cmd, shell=True)
@@ -84,7 +84,8 @@ def run():
             'input': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'output': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'eq': {'left': {'type': '', 'path': ''},
-                   'right': {'type': '', 'path': ''}}
+                   'right': {'type': '', 'path': ''}},
+            'curve': {'plot': True, 'rotate': 0}
             }
 
     if len(sys.argv) == 1:  # no config
@@ -108,14 +109,15 @@ def run():
         print('buf_in, bun_out: ', buf_in, ', ', buf_out)
         print(cmd)
 
-    pid = show_eq([eq_l, eq_r], conf['global']['debug'])
-    time.sleep(conf['global']['wait_for_plot'])
+    if conf['curve']['plot']:
+        pid = show_eq([eq_l, eq_r], conf['curve']['rotate'], conf['global']['debug'])
+        time.sleep(conf['global']['wait_for_plot'])
 
     start = time.time()
     play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
     stop = time.time() - start
     print("{:.2f}s".format(stop))
-    os.kill(pid, signal.SIGTERM)
+    # os.kill(pid, signal.SIGTERM)
 
 
 if __name__ == '__main__':
