@@ -80,12 +80,12 @@ def run():
     buf_out = 512
     eq_l = []
     eq_r = []
-    conf = {'global': {'buffer_bytes': 1024, 'debug': False, 'wait_for_plot': 5},
+    conf = {'global': {'buffer_bytes': 1024, 'debug': False},
             'input': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'output': {'device_id': -1, 'rate': 48000, 'bit': 16},
             'eq': {'left': {'type': '', 'path': ''},
                    'right': {'type': '', 'path': ''}},
-            'curve': {'plot': True, 'rotate': 0}
+            'curve': {'plot': True, 'rotate': 0, 'wait_for_plot': 5}
             }
 
     if len(sys.argv) == 1:  # no config
@@ -111,7 +111,7 @@ def run():
 
     if conf['curve']['plot']:
         pid = show_eq([eq_l, eq_r], conf['curve']['rotate'], conf['global']['debug'])
-        time.sleep(conf['global']['wait_for_plot'])
+        time.sleep(conf['curve']['wait_for_plot'])
 
     start = time.time()
     play_stdin(cmd, conf['output']['rate'], conf['output']['bit'], buf_out, conf['output']['device_id'])
