@@ -1,6 +1,7 @@
 # PiPEQ - A Parametric Equalizer on Raspberry Pi
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ebiiim/PiPEQ/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Febiiim%2FPiPEQ.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Febiiim%2FPiPEQ?ref=badge_shield)
 
 ## Usage
 
@@ -104,6 +105,9 @@ The following applications are called at runtime:
 
 - [SoX](http://sox.sourceforge.net/)
 - [gnuplot](http://www.gnuplot.info/)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Febiiim%2FPiPEQ.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Febiiim%2FPiPEQ?ref=badge_large)
 
 ## Changelog
 
