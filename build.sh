@@ -11,5 +11,7 @@ mv dist/plot_eq dist/pipeq-show-eq
 cp plot_combined.pl dist/pipeq-plot-eq
 cp install.sh dist
 cp config.txt dist
+cp left.txt dist
+cp right.txt dist
 cp LICENSE dist
 cp README.md dist
