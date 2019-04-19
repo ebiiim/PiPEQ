@@ -2,28 +2,30 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ebiiim/PiPEQ/blob/master/LICENSE)
 
+![image](https://github.com/nullpo-t/comiket95/raw/master/oshinagaki/img/IMG_4491-3.jpg)
+
 ## Usage
 
 Install
 
 ```bash
-curl -L -O https://github.com/ebiiim/PiPEQ/releases/download/v0.2.0/PiPEQ-v0.2.0-linux-armv7l.tar.gz
-tar -zxvf PiPEQ-v0.2.0-linux-armv7l.tar.gz
+curl -L -O https://github.com/ebiiim/PiPEQ/releases/download/v0.3.0/PiPEQ-v0.3.0-linux-armv7l.tar.gz
+tar -zxvf PiPEQ-v0.3.0-linux-armv7l.tar.gz
 cd PiPEQ
 ./install.sh
 ```
 
-Setting
+Prepare
 
 ```bash
 pipeq-get-devices # get the device id
 vi config.txt # edit the config file
 ```
 
-Run
+Play
 
 ```bash
-pipeq config.txt
+pipeq ./config.txt
 ```
 
 Config.txt
@@ -59,8 +61,7 @@ wait_for_plot = 5
 Uninstall
 
 ```bash
-rm -rf /path/to/PiPEQ
-sudo rm /usr/loca/bin/pipeq*
+./uninstall.sh
 ```
 
 ## Development
@@ -107,12 +108,9 @@ The following applications are called at runtime:
 
 ## Changelog
 
-### 0.2.0 / 2018-11-10
-
-NEW
-
-- EQ curves view
-
-### 0.1.0 / 2018-11-06
-
-Initial release.
+- 2019.04.20 v0.3.0
+    - improve stability
+- 2018.11.10 v0.2.0
+    - add EQ curves view
+- 2018.11.06 v0.1.0
+    - initial release
