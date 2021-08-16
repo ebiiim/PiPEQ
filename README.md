@@ -1,3 +1,9 @@
+***I'm working on a better implementation so this is no longer maintained.***
+
+***See [github.com/ebiiim/kani](https://github.com/ebiiim/kani)*** 👀
+
+***Aug. 2021***
+
 # PiPEQ - A Parametric Equalizer on Raspberry Pi
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ebiiim/PiPEQ/blob/master/LICENSE)
